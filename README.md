@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# 🤿 Дневник погружений (Logbook)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Приложение для ведения дневника подводных погружений с возможностью записи, просмотра и анализа погружений.
 
-Currently, two official plugins are available:
+## 🎯 Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- ✍️ Добавление погружений с детальной информацией (место, глубина, время, оценка, заметки)
+- 📋 Просмотр истории в формате списка или таблицы
+- ⭐ Рейтинг погружений по 5-звездочной шкале
+- 📊 Статистика: общее количество, макс. глубина, суммарное время под водой
+- 🔍 Сортировка по месту, глубине и времени
+- 💾 Сохранение данных в браузере (localStorage)
 
-## React Compiler
+## 🛠 Технологии
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19.2.7** — UI библиотека
+- **TypeScript 6.0.2** — строгая типизация
+- **Vite 8.1.1** — сборщик и dev-сервер
+- **Oxlint 1.71.0** — линтер для кода
 
-## Expanding the Oxlint configuration
+## 🚀 Запуск
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+```bash
+# Установка зависимостей
+npm install
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# Запуск dev-сервера
+npm run dev
+
+# Сборка для продакшена
+npm run build
+
+# Предпросмотр сборки
+npm run preview
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 📁 Структура проекта
+
+```
+src/
+├── App.tsx              # Основной компонент приложения
+├── main.tsx             # Точка входа
+├── components/          # UI компоненты
+│   ├── DiveForm.tsx     # Форма добавления погружения
+│   ├── DiveList.tsx     # Список погружений
+│   ├── DiveTable.tsx    # Таблица погружений
+│   └── Stats.tsx        # Карточки статистики
+├── hooks/               # Кастомные хуки
+│   └── useDiveLog.ts    # Логика управления данными
+├── types/               # TypeScript типы
+│   └── dive.ts          # Интерфейс погружения
+└── assets/              # Статические ресурсы
+```
+
+## 📝 Формат данных
+
+Каждое погружение содержит:
+- `id` — уникальный идентификатор
+- `date` — дата погружения (ISO)
+- `site` — название места
+- `maxDepthM` — макс. глубина в метрах
+- `durationMin` — длительность в минутах
+- `notes` — заметки
+- `rating` — оценка (1-5 звезд)
+
+Данные сохраняются в `localStorage` под ключом `dive-logbook`.
+
+## 📄 Лицензия
+
+MIT
