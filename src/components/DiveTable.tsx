@@ -13,6 +13,8 @@ interface SortState {
   dir: SortDir
 }
 
+const PAGE_SIZE = 10
+
 function formatDate(iso: string) {
   return new Date(iso + 'T12:00:00').toLocaleDateString('ru-RU', {
     day: 'numeric',
@@ -45,9 +47,20 @@ const sortableColumns: { key: SortKey; label: string }[] = [
 ]
 
 export function DiveTable({ dives }: DiveTableProps) {
+  const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortState | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const sorted = useMemo(() => sortDives(dives, sort), [dives, sort])
+  const filteredDives = useMemo(() => {
+    if (!search.trim()) return dives
+    const lowerSearch = search.toLowerCase()
+    return dives.filter((d) => d.site.toLowerCase().includes(lowerSearch))
+  }, [dives, search])
+
+  const sorted = useMemo(() => sortDives(filteredDives, sort), [filteredDives, sort])
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const currentItems = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function toggleSort(key: SortKey) {
     setSort((prev) => {
@@ -73,7 +86,15 @@ export function DiveTable({ dives }: DiveTableProps) {
 
   return (
     <section className="dive-table-section">
-      <h2>Журнал ({dives.length})</h2>
+      <h2>Журнал ({sorted.length})</h2>
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Поиск по месту..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       <div className="table-wrap">
         <table className="dive-table">
@@ -99,7 +120,7 @@ export function DiveTable({ dives }: DiveTableProps) {
             </tr>
           </thead>
           <tbody>
-            {sorted.map((dive) => (
+            {currentItems.map((dive) => (
               <tr key={dive.id}>
                 <td>
                   <time dateTime={dive.date}>{formatDate(dive.date)}</time>
@@ -122,6 +143,30 @@ export function DiveTable({ dives }: DiveTableProps) {
           </tbody>
         </table>
       </div>
+      {sorted.length === 0 && (
+        <p className="no-results">Ничего не найдено по запросу "{search}"</p>
+      )}
+      {sorted.length > 10 && (
+        <div className="pagination">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            ←
+          </button>
+          <span>
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          >
+            →
+          </button>
+        </div>
+      )}
     </section>
   )
 }
