@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Dive } from '../types/dive'
 
 interface DiveListProps {
@@ -23,6 +24,13 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export function DiveList({ dives, onDelete }: DiveListProps) {
+  const [viewingId, setViewingId] = useState<string | null>(null)
+  const diveToView = dives.find((d) => d.id === viewingId)
+
+  function closeModal() {
+    setViewingId(null)
+  }
+
   if (dives.length === 0) {
     return (
       <section className="dive-list empty">
@@ -37,7 +45,7 @@ export function DiveList({ dives, onDelete }: DiveListProps) {
       <h2>Журнал ({dives.length})</h2>
       <ul>
         {dives.map((dive) => (
-          <li key={dive.id} className="dive-card">
+          <li key={dive.id} className="dive-card" onClick={() => setViewingId(dive.id)}>
             <div className="dive-card-header">
               <div>
                 <h3>{dive.site}</h3>
@@ -53,10 +61,47 @@ export function DiveList({ dives, onDelete }: DiveListProps) {
 
             {dive.notes && <p className="dive-notes">{dive.notes}</p>}
 
+            {viewingId === dive.id && diveToView && (
+              <div className="modal-overlay" onClick={closeModal}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div className="modal-header">
+                    <h3>{diveToView.site}</h3>
+                    <button type="button" className="modal-close-btn" onClick={closeModal}>
+                      ×
+                    </button>
+                  </div>
+                  <time dateTime={diveToView.date}>{formatDate(diveToView.date)}</time>
+                  <div className="modal-grid">
+                    <div>
+                      <span className="label">Глубина</span>
+                      <span className="value">{diveToView.maxDepthM} м</span>
+                    </div>
+                    <div>
+                      <span className="label">Время</span>
+                      <span className="value">{diveToView.durationMin} мин</span>
+                    </div>
+                    <div>
+                      <span className="label">Оценка</span>
+                      <span className="value">
+                        <Stars rating={diveToView.rating} />
+                      </span>
+                    </div>
+                  </div>
+                  {diveToView.notes && (
+                    <div className="modal-section">
+                      <span className="label">Заметки</span>
+                      <p className="notes">{diveToView.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <button
               type="button"
               className="btn-delete"
-              onClick={() => onDelete(dive.id)}
+              onClick={(e) => e.stopPropagation()}
+              onClickCapture={() => onDelete(dive.id)}
             >
               Удалить
             </button>
