@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { DiveForm } from './components/DiveForm'
 import { DiveList } from './components/DiveList'
 import { DiveTable } from './components/DiveTable'
-import { Stats } from './components/Stats'
+import { Stats } from './components/Shared/Stats'
 import { useDiveLog } from './hooks/useDiveLog'
 import './App.css'
 

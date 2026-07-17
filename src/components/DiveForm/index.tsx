@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import type { Dive, DiveInput } from '../types/dive'
-import ActionButton from './ActionButtons'
+import type { Dive, DiveInput } from '../../types/dive'
+import ActionButton from '../Shared/ActionButton'
 
 const emptyForm: DiveInput = {
   date: new Date().toISOString().slice(0, 10),

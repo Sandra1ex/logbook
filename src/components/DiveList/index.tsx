@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { Dive } from '../types/dive'
-import ActionButton from './ActionButtons'
+import type { Dive } from '../../types/dive'
+import ActionButton from '../Shared/ActionButton'
 
 interface DiveListProps {
   dives: Dive[]

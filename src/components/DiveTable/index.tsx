@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { Dive } from '../types/dive'
+import type { Dive } from '../../types/dive'
 
 interface DiveTableProps {
   dives: Dive[]
