@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
-import type { DiveInput } from '../types/dive'
+import { useState, useEffect, type FormEvent } from 'react'
+import type { Dive, DiveInput } from '../types/dive'
+import ActionButton from './ActionButtons'
 
 const emptyForm: DiveInput = {
   date: new Date().toISOString().slice(0, 10),
@@ -11,11 +12,21 @@ const emptyForm: DiveInput = {
 }
 
 interface DiveFormProps {
-  onSubmit: (dive: DiveInput) => void
+  onSubmit: (dive: Dive | DiveInput) => void
+  dive?: Dive
+  onCloseEdit?: () => void
 }
 
-export function DiveForm({ onSubmit }: DiveFormProps) {
-  const [form, setForm] = useState<DiveInput>(emptyForm)
+export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
+  const [form, setForm] = useState<DiveInput>(dive ? { ...dive } : emptyForm)
+
+  useEffect(() => {
+    if (dive) {
+      setForm({ ...dive })
+    } else {
+      setForm(emptyForm)
+    }
+  }, [dive])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -24,9 +35,13 @@ export function DiveForm({ onSubmit }: DiveFormProps) {
     setForm({ ...emptyForm, date: new Date().toISOString().slice(0, 10) })
   }
 
+  function handleFormSubmit() {
+    handleSubmit({ preventDefault: () => {} } as FormEvent)
+  }
+
   return (
     <form className="dive-form" onSubmit={handleSubmit}>
-      <h2>Новое погружение</h2>
+      <h2>{dive ? 'Редактирование' : 'Новое погружение'}</h2>
 
       <div className="form-row">
         <label>
@@ -106,9 +121,16 @@ export function DiveForm({ onSubmit }: DiveFormProps) {
         />
       </label>
 
-      <button type="submit" className="btn-primary">
-        Записать погружение
-      </button>
+      <div className="form-actions">
+        <ActionButton 
+          text={dive ? 'Сохранить изменения' : 'Записать погружение'} 
+          onClick={handleFormSubmit} 
+          color="accent" 
+        />
+        {dive && onCloseEdit && (
+          <ActionButton text="Отмена" onClick={onCloseEdit} color="outline" />
+        )}
+      </div>
     </form>
   )
 }

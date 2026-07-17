@@ -34,11 +34,17 @@ export function useDiveLog() {
     setDives((prev) => prev.filter((d) => d.id !== id))
   }
 
+  function updateDive(id: string, input: DiveInput) {
+    setDives((prev) =>
+      prev.map((d) => (d.id === id ? { ...input, id } : d))
+    )
+  }
+
   const stats = {
     total: dives.length,
     maxDepth: dives.reduce((max, d) => Math.max(max, d.maxDepthM), 0),
     totalMinutes: dives.reduce((sum, d) => sum + d.durationMin, 0),
   }
 
-  return { dives, addDive, deleteDive, stats }
+  return { dives, addDive, deleteDive, updateDive, stats }
 }

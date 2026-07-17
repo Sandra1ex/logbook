@@ -271,17 +271,11 @@ textarea {
 }
 
 .btn-primary {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.7rem 1rem;
-  font: inherit;
-  font-weight: 500;
-  color: #fff;
   background: var(--accent);
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
 }
 
 .btn-primary:hover {
@@ -382,8 +376,35 @@ textarea {
   background: var(--accent-hover);
 }
 
+.btn-blue {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.btn-blue:hover {
+  background: rgba(0, 119, 182, 0.1);
+}
+
+.btn-delete {
+  padding: 0.3rem 0.6rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--danger);
+  background: transparent;
+  border: 1px solid var(--danger-border);
+  border-radius: 0.35rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-delete:hover {
+  background: var(--danger-bg);
+}
+
 .dive-actions {
   display: flex;
+  justify-content: flex-end;
   gap: 0.5rem;
 }
 
@@ -489,9 +510,9 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 1.5rem;
-  width: 100%;
-  max-width: 400px;
-  max-height: 90vh;
+  width: 80vw;
+  height: 80vh;
+  max-height: 80vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -577,6 +598,9 @@ textarea {
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }
 
 .dive-card {
