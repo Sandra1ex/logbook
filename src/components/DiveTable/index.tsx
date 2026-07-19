@@ -1,19 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactElement } from 'react'
 import type { Dive } from '../../types/dive'
-
-interface DiveTableProps {
-  dives: Dive[]
-}
-
-type SortKey = 'site' | 'maxDepthM' | 'durationMin'
-type SortDir = 'asc' | 'desc'
-
-interface SortState {
-  key: SortKey
-  dir: SortDir
-}
-
-const PAGE_SIZE = 10
+import type { DiveTableProps, SortKey, SortState } from './types'
+import { PAGE_SIZE } from './types'
 
 function formatDate(iso: string) {
   const date = new Date(iso + 'T12:00:00')
@@ -46,13 +34,9 @@ function sortDives(dives: Dive[], sort: SortState | null) {
   return sort.dir === 'desc' ? sorted.reverse() : sorted
 }
 
-const sortableColumns: { key: SortKey; label: string }[] = [
-  { key: 'site', label: 'Место' },
-  { key: 'maxDepthM', label: 'Глубина' },
-  { key: 'durationMin', label: 'Время' },
-]
 
-export function DiveTable({ dives }: DiveTableProps) {
+
+export function DiveTable({ dives }: DiveTableProps): ReactElement {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortState | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -74,11 +58,6 @@ export function DiveTable({ dives }: DiveTableProps) {
       if (prev.dir === 'asc') return { key, dir: 'desc' }
       return null
     })
-  }
-
-  function sortIndicator(key: SortKey) {
-    if (sort?.key !== key) return '↕'
-    return sort.dir === 'asc' ? '↑' : '↓'
   }
 
   if (dives.length === 0) {
@@ -106,31 +85,32 @@ export function DiveTable({ dives }: DiveTableProps) {
         <table className="dive-table">
           <thead>
             <tr>
-              <th>Дата</th>
-              {sortableColumns.map(({ key, label }) => (
-                <th key={key}>
-                  <button
-                    type="button"
-                    className={`sort-btn${sort?.key === key ? ' active' : ''}`}
-                    onClick={() => toggleSort(key)}
-                  >
-                    {label}
-                    <span className="sort-icon" aria-hidden="true">
-                      {sortIndicator(key)}
-                    </span>
-                  </button>
-                </th>
-              ))}
+              <th>
+                <button type="button" className={`sort-btn${sort?.key === 'site' ? ' active' : ''}`} onClick={() => toggleSort('site')}>
+                  Место
+                  <span className="sort-icon">{sort?.key === 'site' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </button>
+              </th>
+              <th>
+                <button type="button" className={`sort-btn${sort?.key === 'maxDepthM' ? ' active' : ''}`} onClick={() => toggleSort('maxDepthM')}>
+                  Глубина
+                  <span className="sort-icon">{sort?.key === 'maxDepthM' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </button>
+              </th>
+              <th>
+                <button type="button" className={`sort-btn${sort?.key === 'durationMin' ? ' active' : ''}`} onClick={() => toggleSort('durationMin')}>
+                  Время
+                  <span className="sort-icon">{sort?.key === 'durationMin' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                </button>
+              </th>
               <th>Оценка</th>
               <th>Заметки</th>
+              <th>Дата</th>
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((dive) => (
+            {currentItems.map((dive: Dive) => (
               <tr key={dive.id}>
-                <td>
-                  <time dateTime={dive.date}>{formatDate(dive.date)}</time>
-                </td>
                 <td>{dive.site}</td>
                 <td>{dive.maxDepthM} м</td>
                 <td>{dive.durationMin} мин</td>
@@ -144,6 +124,9 @@ export function DiveTable({ dives }: DiveTableProps) {
                   </span>
                 </td>
                 <td className="notes-cell">{dive.notes || '—'}</td>
+                <td>
+                  <time dateTime={dive.date}>{formatDate(dive.date)}</time>
+                </td>
               </tr>
             ))}
           </tbody>
