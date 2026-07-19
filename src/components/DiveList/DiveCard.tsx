@@ -9,12 +9,17 @@ export function DiveCard({
   onClick,
   onDelete,
 }: DiveCardProps): ReactElement {
+  const timeLabel = dive.time?.trim() ? ` · ${dive.time}` : ''
+
   return (
     <li className="dive-card">
       <div className="dive-card-header" onClick={onClick}>
         <div>
           <h3>{dive.site}</h3>
-          <time dateTime={dive.date}>{formatDateLong(dive.date)}</time>
+          <time dateTime={dive.date}>
+            {formatDateLong(dive.date)}
+            {timeLabel}
+          </time>
         </div>
         <Stars rating={dive.rating} />
       </div>

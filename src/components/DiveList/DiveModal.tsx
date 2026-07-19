@@ -118,6 +118,11 @@ export function DiveModal({
 
             <div className="modal-actions">
               <ActionButton
+                text="Добавить данные"
+                onClick={() => {}}
+                color="accent"
+              />
+              <ActionButton
                 text="Редактировать"
                 onClick={() => setIsEditing(true)}
                 color="blue"

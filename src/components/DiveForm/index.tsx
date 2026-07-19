@@ -1,10 +1,23 @@
 import { useState, useEffect, type FormEvent, type ReactElement } from 'react'
-import type { DiveInput } from '../../types/dive'
+import type { Dive, DiveInput } from '../../types/dive'
 import type { DiveFormProps, FieldErrors } from './types'
-import { emptyForm } from './const'
+import { emptyForm, normalizeDiveInput } from './const'
 import { validateDiveForm } from './validation'
+import { getLocalDateString } from '../../utils/diveTimer'
 import FormInput from '../Shared/FormInput'
 import ActionButton from '../Shared/ActionButton'
+
+function toFormValues(dive: Dive): DiveInput {
+  return {
+    date: dive.date,
+    time: dive.time,
+    site: dive.site,
+    maxDepthM: dive.maxDepthM,
+    durationMin: dive.durationMin,
+    notes: dive.notes,
+    rating: dive.rating,
+  }
+}
 
 export function DiveForm({
   onSubmit,
@@ -12,16 +25,18 @@ export function DiveForm({
   onCloseEdit,
   embedded,
 }: DiveFormProps): ReactElement {
-  const [form, setForm] = useState<DiveInput>(dive ? { ...dive } : emptyForm)
+  const [form, setForm] = useState<DiveInput>(
+    dive ? toFormValues(dive) : emptyForm,
+  )
   const [errors, setErrors] = useState<FieldErrors>({})
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = getLocalDateString()
 
   useEffect(() => {
     if (dive) {
-      setForm({ ...dive })
+      setForm(toFormValues(dive))
     } else {
-      setForm(emptyForm)
+      setForm({ ...emptyForm, date: getLocalDateString() })
     }
     setErrors({})
   }, [dive])
@@ -44,10 +59,10 @@ export function DiveForm({
       return
     }
 
-    onSubmit(form)
+    onSubmit(normalizeDiveInput(form))
 
     if (!dive) {
-      setForm({ ...emptyForm, date: today })
+      setForm({ ...emptyForm, date: getLocalDateString() })
       setErrors({})
     }
   }

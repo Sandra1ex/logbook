@@ -1,5 +1,6 @@
 import { type ReactElement } from 'react'
 import type { StatsProps } from './types'
+import { DiveTimerCard } from './DiveTimerCard'
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60)
@@ -13,6 +14,7 @@ export function Stats({
   total,
   maxDepth,
   totalMinutes,
+  latestDive,
 }: StatsProps): ReactElement {
   return (
     <section className="stats">
@@ -28,8 +30,9 @@ export function Stats({
         <span className="stat-value">
           {totalMinutes ? formatDuration(totalMinutes) : '—'}
         </span>
-        <span className="stat-label">время под водой</span>
+        <span className="stat-label">всего под водой</span>
       </div>
+      <DiveTimerCard latestDive={latestDive} />
     </section>
   )
 }

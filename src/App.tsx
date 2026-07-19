@@ -5,11 +5,13 @@ import { DiveList } from './components/DiveList'
 import { DiveTable } from './components/DiveTable'
 import { Stats } from './components/Shared/Stats'
 import { useDiveLog } from './hooks/useDiveLog'
+import { getLatestDive } from './utils/diveTimer'
 import './App.css'
 
 function App(): ReactElement {
   const { dives, addDive, deleteDive, updateDive, stats } = useDiveLog()
   const [mode, setMode] = useState<AppMode>('edit')
+  const latestDive = getLatestDive(dives)
 
   return (
     <div className="app">
@@ -43,6 +45,7 @@ function App(): ReactElement {
         total={stats.total}
         maxDepth={stats.maxDepth}
         totalMinutes={stats.totalMinutes}
+        latestDive={latestDive}
       />
 
       <main className={mode === 'edit' ? 'main' : 'main main-view'}>

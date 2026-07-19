@@ -1,8 +1,21 @@
 import { useEffect, useState } from 'react'
 import type { Dive, DiveInput } from '../types/dive'
 import type { DiveLogStats } from './types'
+import { getDiveDateTime } from '../utils/diveTimer'
 
 const STORAGE_KEY = 'dive-logbook'
+
+function migrateDive(raw: Dive & { recordedAt?: string }): Dive {
+  if (raw.recordedAt) return raw as Dive
+
+  const diveAt = getDiveDateTime(raw)
+  return {
+    ...raw,
+    recordedAt: Number.isNaN(diveAt.getTime())
+      ? new Date().toISOString()
+      : diveAt.toISOString(),
+  }
+}
 
 function loadDives(): Dive[] {
   try {
@@ -10,7 +23,9 @@ function loadDives(): Dive[] {
     if (!raw) return []
 
     const parsed = JSON.parse(raw) as Dive[]
-    return Array.isArray(parsed) ? parsed : []
+    if (!Array.isArray(parsed)) return []
+
+    return parsed.map(migrateDive)
   } catch {
     return []
   }
@@ -28,7 +43,11 @@ export function useDiveLog() {
   }, [dives])
 
   function addDive(input: DiveInput): void {
-    const dive: Dive = { ...input, id: crypto.randomUUID() }
+    const dive: Dive = {
+      ...input,
+      id: crypto.randomUUID(),
+      recordedAt: new Date().toISOString(),
+    }
     setDives((prev) => [dive, ...prev])
   }
 
@@ -38,7 +57,15 @@ export function useDiveLog() {
 
   function updateDive(id: string, input: DiveInput): void {
     setDives((prev) =>
-      prev.map((dive) => (dive.id === id ? { ...input, id } : dive)),
+      prev.map((dive) =>
+        dive.id === id
+          ? {
+              ...input,
+              id,
+              recordedAt: dive.recordedAt || new Date().toISOString(),
+            }
+          : dive,
+      ),
     )
   }
 

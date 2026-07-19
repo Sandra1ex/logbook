@@ -77,7 +77,7 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
   margin-bottom: 1.5rem;
   flex-shrink: 0;
@@ -92,6 +92,14 @@
   box-shadow: var(--shadow);
 }
 
+.stat-card-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 5.5rem;
+}
+
 .stat-value {
   display: block;
   font-size: 1.5rem;
@@ -99,10 +107,23 @@
   color: var(--accent);
 }
 
+.timer-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
 .stat-label {
   display: block;
   margin-top: 0.25rem;
   font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.timer-end {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.7rem;
+  line-height: 1.35;
   color: var(--text-muted);
 }
 
@@ -446,7 +467,7 @@ textarea {
 
 @media (max-width: 720px) {
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .main {

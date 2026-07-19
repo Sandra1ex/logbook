@@ -7,6 +7,8 @@ export interface Dive {
   durationMin: number
   notes: string
   rating: number
+  /** When the log entry was saved — used for the 24h timer */
+  recordedAt: string
 }
 
-export type DiveInput = Omit<Dive, 'id'>
+export type DiveInput = Omit<Dive, 'id' | 'recordedAt'>
