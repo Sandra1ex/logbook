@@ -32,7 +32,7 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
     e.preventDefault()
     if (!form.site.trim() || !validateDate(form.date)) return
     onSubmit(form)
-    setForm({ ...emptyForm, date: new Date().toISOString().slice(0, 10) })
+    setForm({ ...emptyForm, date: new Date().toISOString().slice(0, 10), time: '08:00' })
   }
 
   function handleFormSubmit() {
@@ -56,25 +56,21 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
           error={dateError || undefined}
         />
         <FormInput
-          label="Место / сайт"
-          type="text"
-          placeholder="напр. Бали, Туламбен"
-          value={form.site}
-          onChange={(e) => setForm({ ...form, site: e.target.value })}
+          label="Время начала"
+          type="time"
+          value={form.time}
+          onChange={(e) => setForm({ ...form, time: e.target.value })}
           required
         />
       </div>
 
       <div className="form-row">
         <FormInput
-          label="Макс. глубина, м"
-          type="number"
-          min={0}
-          max={200}
-          value={form.maxDepthM || ''}
-          onChange={(e) =>
-            setForm({ ...form, maxDepthM: Number(e.target.value) })
-          }
+          label="Место / сайт"
+          type="text"
+          placeholder="напр. Бали, Туламбен"
+          value={form.site}
+          onChange={(e) => setForm({ ...form, site: e.target.value })}
           required
         />
         <FormInput

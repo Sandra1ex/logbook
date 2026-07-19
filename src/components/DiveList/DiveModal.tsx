@@ -19,6 +19,10 @@ function formatDate(iso: string): string {
   })
 }
 
+function formatDateTime(dateIso: string, time: string): string {
+  return `${formatDate(dateIso)} в ${time}`
+}
+
 export function DiveModal({ dive, onClose }: DiveModalProps): ReactElement {
   const [isModalOpen, setIsModalOpen] = useState(true)
 
@@ -53,7 +57,7 @@ export function DiveModal({ dive, onClose }: DiveModalProps): ReactElement {
             ×
           </button>
         </div>
-        <time dateTime={dive.date}>{formatDate(dive.date)}</time>
+        <time dateTime={dive.date + 'T' + dive.time}>{formatDateTime(dive.date, dive.time)}</time>
         <div className="modal-grid">
           <div>
             <span className="label">Глубина</span>

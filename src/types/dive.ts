@@ -1,6 +1,7 @@
 export interface Dive {
   id: string
   date: string
+  time: string
   site: string
   maxDepthM: number
   durationMin: number

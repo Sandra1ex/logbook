@@ -5,6 +5,15 @@ import { PAGE_SIZE } from './types'
 
 function formatDate(iso: string) {
   const date = new Date(iso + 'T12:00:00')
+  return date.toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function formatDateTime(dateIso: string, time: string) {
+  const date = new Date(dateIso + 'T' + time)
   const datePart = date.toLocaleDateString('ru-RU', {
     day: 'numeric',
     month: 'short',
@@ -105,6 +114,7 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
               </th>
               <th>Оценка</th>
               <th>Заметки</th>
+              <th>Время начала</th>
               <th>Дата</th>
             </tr>
           </thead>
@@ -124,6 +134,9 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
                   </span>
                 </td>
                 <td className="notes-cell">{dive.notes || '—'}</td>
+                <td>
+                  <time dateTime={dive.date + 'T' + dive.time}>{formatDateTime(dive.date, dive.time)}</time>
+                </td>
                 <td>
                   <time dateTime={dive.date}>{formatDate(dive.date)}</time>
                 </td>
