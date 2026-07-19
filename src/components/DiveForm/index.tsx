@@ -1,24 +1,15 @@
-import { useState, useEffect, type FormEvent } from 'react'
-import type { Dive, DiveInput } from '../../types/dive'
+import { useState, useEffect } from 'react'
+import type { DiveInput } from '../../types/dive'
+import type { DiveFormProps } from './types'
+import { emptyForm } from './const'
+import FormInput from '../Shared/FormInput'
 import ActionButton from '../Shared/ActionButton'
-
-const emptyForm: DiveInput = {
-  date: new Date().toISOString().slice(0, 10),
-  site: '',
-  maxDepthM: 0,
-  durationMin: 0,
-  notes: '',
-  rating: 3,
-}
-
-interface DiveFormProps {
-  onSubmit: (dive: Dive | DiveInput) => void
-  dive?: Dive
-  onCloseEdit?: () => void
-}
 
 export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
   const [form, setForm] = useState<DiveInput>(dive ? { ...dive } : emptyForm)
+  const [dateError, setDateError] = useState<string | null>(null)
+
+  const today = new Date().toISOString().slice(0, 10)
 
   useEffect(() => {
     if (dive) {
@@ -28,15 +19,24 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
     }
   }, [dive])
 
-  function handleSubmit(e: FormEvent) {
+  function validateDate(date: string) {
+    if (date > today) {
+      setDateError('Нельзя записывать будущие даты')
+      return false
+    }
+    setDateError(null)
+    return true
+  }
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.site.trim()) return
+    if (!form.site.trim() || !validateDate(form.date)) return
     onSubmit(form)
     setForm({ ...emptyForm, date: new Date().toISOString().slice(0, 10) })
   }
 
   function handleFormSubmit() {
-    handleSubmit({ preventDefault: () => {} } as FormEvent)
+    handleSubmit({ preventDefault: () => {} } as any)
   }
 
   return (
@@ -44,54 +44,50 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
       <h2>{dive ? 'Редактирование' : 'Новое погружение'}</h2>
 
       <div className="form-row">
-        <label>
-          Дата
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            required
-          />
-        </label>
-        <label>
-          Место / сайт
-          <input
-            type="text"
-            placeholder="напр. Бали, Туламбен"
-            value={form.site}
-            onChange={(e) => setForm({ ...form, site: e.target.value })}
-            required
-          />
-        </label>
+        <FormInput
+          label="Дата"
+          type="date"
+          value={form.date}
+          onChange={(e) => {
+            setForm({ ...form, date: e.target.value })
+            setDateError(null)
+          }}
+          required
+          error={dateError || undefined}
+        />
+        <FormInput
+          label="Место / сайт"
+          type="text"
+          placeholder="напр. Бали, Туламбен"
+          value={form.site}
+          onChange={(e) => setForm({ ...form, site: e.target.value })}
+          required
+        />
       </div>
 
       <div className="form-row">
-        <label>
-          Макс. глубина, м
-          <input
-            type="number"
-            min={0}
-            max={200}
-            value={form.maxDepthM || ''}
-            onChange={(e) =>
-              setForm({ ...form, maxDepthM: Number(e.target.value) })
-            }
-            required
-          />
-        </label>
-        <label>
-          Время, мин
-          <input
-            type="number"
-            min={1}
-            max={300}
-            value={form.durationMin || ''}
-            onChange={(e) =>
-              setForm({ ...form, durationMin: Number(e.target.value) })
-            }
-            required
-          />
-        </label>
+        <FormInput
+          label="Макс. глубина, м"
+          type="number"
+          min={0}
+          max={200}
+          value={form.maxDepthM || ''}
+          onChange={(e) =>
+            setForm({ ...form, maxDepthM: Number(e.target.value) })
+          }
+          required
+        />
+        <FormInput
+          label="Время, мин"
+          type="number"
+          min={1}
+          max={300}
+          value={form.durationMin || ''}
+          onChange={(e) =>
+            setForm({ ...form, durationMin: Number(e.target.value) })
+          }
+          required
+        />
       </div>
 
       <label>
@@ -111,15 +107,13 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
         </div>
       </label>
 
-      <label>
-        Заметки
-        <textarea
-          rows={3}
-          placeholder="что видел, погода, оборудование..."
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-        />
-      </label>
+      <FormInput
+        label="Заметки"
+        type="textarea"
+        placeholder="что видел, погода, оборудование..."
+        value={form.notes}
+        onChange={(e) => setForm({ ...form, notes: e.target.value })}
+      />
 
       <div className="form-actions">
         <ActionButton 

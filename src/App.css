@@ -2,6 +2,9 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 2rem 1.25rem 3rem;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -76,7 +79,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .stat-card {
@@ -107,10 +111,13 @@
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   align-items: start;
+  flex: 1;
+  overflow: hidden;
 }
 
 .main-view {
   grid-template-columns: 1fr;
+  overflow: hidden;
 }
 
 .dive-form,
@@ -121,12 +128,13 @@
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: var(--shadow);
+  height: 100%;
 }
 
 .dive-form h2,
 .dive-list h2,
 .dive-table-section h2 {
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.75rem;
   font-size: 1.1rem;
   color: var(--text-h);
 }
@@ -234,6 +242,10 @@ textarea {
   transition: border-color 0.15s;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(1) saturate(1) hue-rotate(180deg)
+}
+
 input:focus,
 textarea:focus {
   outline: none;
@@ -293,7 +305,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: 32rem;
+  max-height: 25rem;
   overflow-y: auto;
 }
 

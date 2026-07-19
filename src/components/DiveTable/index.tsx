@@ -16,11 +16,17 @@ interface SortState {
 const PAGE_SIZE = 10
 
 function formatDate(iso: string) {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('ru-RU', {
+  const date = new Date(iso + 'T12:00:00')
+  const datePart = date.toLocaleDateString('ru-RU', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
+  const timePart = date.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return `${datePart} ${timePart}`
 }
 
 function sortDives(dives: Dive[], sort: SortState | null) {
