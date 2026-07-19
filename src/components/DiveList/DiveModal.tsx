@@ -1,14 +1,17 @@
-import { useState, useEffect, useRef, type ReactElement } from 'react'
+import { useState, useEffect, useRef, useCallback, type ReactElement } from 'react'
 import type { DiveInput } from '../../types/dive'
 import type { DiveModalProps } from './types'
+import { MODAL_CLOSE_DURATION_MS } from './const'
 import { Stars } from '../Shared/Stars'
 import { formatDateTimeLong } from '../../utils/format'
 import { DiveForm } from '../DiveForm'
 import ActionButton from '../Shared/ActionButton'
 
-const CLOSE_DURATION_MS = 550
-
-export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactElement {
+export function DiveModal({
+  dive,
+  onClose,
+  onUpdate,
+}: DiveModalProps): ReactElement {
   const [isEditing, setIsEditing] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const closeTimeoutRef = useRef<number | null>(null)
@@ -22,16 +25,18 @@ export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactEle
     }
   }, [])
 
-  function requestClose() {
+  const requestClose = useCallback((): void => {
     if (isClosingRef.current) return
+
     isClosingRef.current = true
     setIsClosing(true)
-    closeTimeoutRef.current = window.setTimeout(onClose, CLOSE_DURATION_MS)
-  }
+    closeTimeoutRef.current = window.setTimeout(onClose, MODAL_CLOSE_DURATION_MS)
+  }, [onClose])
 
   useEffect(() => {
-    function handleEsc(e: KeyboardEvent) {
+    function handleEsc(e: KeyboardEvent): void {
       if (e.key !== 'Escape' || isClosingRef.current) return
+
       if (isEditing) {
         setIsEditing(false)
       } else {
@@ -46,14 +51,14 @@ export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactEle
       document.removeEventListener('keydown', handleEsc)
       document.body.style.overflow = ''
     }
-  }, [isEditing, onClose])
+  }, [isEditing, requestClose])
 
-  function handleOverlayClick() {
+  function handleOverlayClick(): void {
     if (isEditing || isClosing) return
     requestClose()
   }
 
-  function handleUpdate(input: DiveInput) {
+  function handleUpdate(input: DiveInput): void {
     onUpdate(dive.id, input)
     setIsEditing(false)
   }
@@ -83,9 +88,10 @@ export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactEle
           />
         ) : (
           <>
-            <time dateTime={dive.time ? dive.date + 'T' + dive.time : dive.date}>
+            <time dateTime={dive.time ? `${dive.date}T${dive.time}` : dive.date}>
               {formatDateTimeLong(dive.date, dive.time)}
             </time>
+
             <div className="modal-grid">
               <div>
                 <span className="label">Глубина</span>
@@ -102,12 +108,14 @@ export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactEle
                 </span>
               </div>
             </div>
+
             {dive.notes && (
               <div className="modal-section">
                 <span className="label">Заметки</span>
                 <p className="notes">{dive.notes}</p>
               </div>
             )}
+
             <div className="modal-actions">
               <ActionButton
                 text="Редактировать"

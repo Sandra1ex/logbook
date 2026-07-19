@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type FormEvent, type ReactElement } from 'react'
 import type { DiveInput } from '../../types/dive'
-import type { DiveFormProps } from './types'
+import type { DiveFormProps, FieldErrors } from './types'
 import { emptyForm } from './const'
-import { validateDiveForm, type FieldErrors } from './validation'
+import { validateDiveForm } from './validation'
 import FormInput from '../Shared/FormInput'
 import ActionButton from '../Shared/ActionButton'
 
-export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProps) {
+export function DiveForm({
+  onSubmit,
+  dive,
+  onCloseEdit,
+  embedded,
+}: DiveFormProps): ReactElement {
   const [form, setForm] = useState<DiveInput>(dive ? { ...dive } : emptyForm)
   const [errors, setErrors] = useState<FieldErrors>({})
 
@@ -21,7 +26,7 @@ export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProp
     setErrors({})
   }, [dive])
 
-  function clearError(field: keyof FieldErrors) {
+  function clearError(field: keyof FieldErrors): void {
     setErrors((prev) => {
       if (!prev[field]) return prev
       const next = { ...prev }
@@ -30,8 +35,9 @@ export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProp
     })
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault()
+
     const nextErrors = validateDiveForm(form, today)
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
@@ -39,18 +45,18 @@ export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProp
     }
 
     onSubmit(form)
+
     if (!dive) {
       setForm({ ...emptyForm, date: today })
       setErrors({})
     }
   }
 
-  function handleFormSubmit() {
-    handleSubmit({ preventDefault: () => {} } as React.FormEvent)
-  }
-
   return (
-    <form className={`dive-form${embedded ? ' embedded' : ''}`} onSubmit={handleSubmit}>
+    <form
+      className={`dive-form${embedded ? ' embedded' : ''}`}
+      onSubmit={handleSubmit}
+    >
       <h2>{dive ? 'Редактирование' : 'Новое погружение'}</h2>
 
       <div className="form-row">
@@ -141,7 +147,7 @@ export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProp
       <div className={embedded ? 'modal-actions' : 'form-actions'}>
         <ActionButton
           text={dive ? 'Сохранить изменения' : 'Записать погружение'}
-          onClick={handleFormSubmit}
+          type="submit"
           color="accent"
         />
         {dive && onCloseEdit && (

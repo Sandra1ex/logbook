@@ -5,24 +5,27 @@ import { PAGE_SIZE } from './types'
 import { Stars } from '../Shared/Stars'
 import { formatDateShort, formatDateTime } from '../../utils/format'
 
-function sortDives(dives: Dive[], sort: SortState | null) {
+function sortDives(dives: Dive[], sort: SortState | null): Dive[] {
   if (!sort) return dives
 
   const sorted = [...dives].sort((a, b) => {
-    const av = a[sort.key]
-    const bv = b[sort.key]
+    const aValue = a[sort.key]
+    const bValue = b[sort.key]
 
-    if (typeof av === 'string' && typeof bv === 'string') {
-      return av.localeCompare(bv, 'ru')
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return aValue.localeCompare(bValue, 'ru')
     }
 
-    return (av as number) - (bv as number)
+    return (aValue as number) - (bValue as number)
   })
 
   return sort.dir === 'desc' ? sorted.reverse() : sorted
 }
 
-
+function getSortIcon(sort: SortState | null, key: SortKey): string {
+  if (sort?.key !== key) return '↕'
+  return sort.dir === 'asc' ? '↑' : '↓'
+}
 
 export function DiveTable({ dives }: DiveTableProps): ReactElement {
   const [search, setSearch] = useState('')
@@ -31,16 +34,23 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
 
   const filteredDives = useMemo(() => {
     if (!search.trim()) return dives
+
     const lowerSearch = search.toLowerCase()
-    return dives.filter((d) => d.site.toLowerCase().includes(lowerSearch))
+    return dives.filter((dive) => dive.site.toLowerCase().includes(lowerSearch))
   }, [dives, search])
 
-  const sorted = useMemo(() => sortDives(filteredDives, sort), [filteredDives, sort])
+  const sorted = useMemo(
+    () => sortDives(filteredDives, sort),
+    [filteredDives, sort],
+  )
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
-  const currentItems = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const currentItems = sorted.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  )
 
-  function toggleSort(key: SortKey) {
+  function toggleSort(key: SortKey): void {
     setSort((prev) => {
       if (prev?.key !== key) return { key, dir: 'asc' }
       if (prev.dir === 'asc') return { key, dir: 'desc' }
@@ -60,6 +70,7 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
   return (
     <section className="dive-table-section">
       <h2>Журнал ({sorted.length})</h2>
+
       <div className="search-box">
         <input
           type="text"
@@ -74,21 +85,37 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
           <thead>
             <tr>
               <th>
-                <button type="button" className={`sort-btn${sort?.key === 'site' ? ' active' : ''}`} onClick={() => toggleSort('site')}>
+                <button
+                  type="button"
+                  className={`sort-btn${sort?.key === 'site' ? ' active' : ''}`}
+                  onClick={() => toggleSort('site')}
+                >
                   Место
-                  <span className="sort-icon">{sort?.key === 'site' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                  <span className="sort-icon">{getSortIcon(sort, 'site')}</span>
                 </button>
               </th>
               <th>
-                <button type="button" className={`sort-btn${sort?.key === 'maxDepthM' ? ' active' : ''}`} onClick={() => toggleSort('maxDepthM')}>
+                <button
+                  type="button"
+                  className={`sort-btn${sort?.key === 'maxDepthM' ? ' active' : ''}`}
+                  onClick={() => toggleSort('maxDepthM')}
+                >
                   Глубина
-                  <span className="sort-icon">{sort?.key === 'maxDepthM' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                  <span className="sort-icon">
+                    {getSortIcon(sort, 'maxDepthM')}
+                  </span>
                 </button>
               </th>
               <th>
-                <button type="button" className={`sort-btn${sort?.key === 'durationMin' ? ' active' : ''}`} onClick={() => toggleSort('durationMin')}>
+                <button
+                  type="button"
+                  className={`sort-btn${sort?.key === 'durationMin' ? ' active' : ''}`}
+                  onClick={() => toggleSort('durationMin')}
+                >
                   Время
-                  <span className="sort-icon">{sort?.key === 'durationMin' ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+                  <span className="sort-icon">
+                    {getSortIcon(sort, 'durationMin')}
+                  </span>
                 </button>
               </th>
               <th>Оценка</th>
@@ -98,7 +125,7 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((dive: Dive) => (
+            {currentItems.map((dive) => (
               <tr key={dive.id}>
                 <td>{dive.site}</td>
                 <td>{dive.maxDepthM} м</td>
@@ -108,7 +135,9 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
                 </td>
                 <td className="notes-cell">{dive.notes || '—'}</td>
                 <td>
-                  <time dateTime={dive.time ? dive.date + 'T' + dive.time : dive.date}>
+                  <time
+                    dateTime={dive.time ? `${dive.date}T${dive.time}` : dive.date}
+                  >
                     {formatDateTime(dive.date, dive.time)}
                   </time>
                 </td>
@@ -120,15 +149,17 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
           </tbody>
         </table>
       </div>
+
       {sorted.length === 0 && (
         <p className="no-results">Ничего не найдено по запросу "{search}"</p>
       )}
-      {sorted.length > 10 && (
+
+      {sorted.length > PAGE_SIZE && (
         <div className="pagination">
           <button
             type="button"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
           >
             ←
           </button>
@@ -138,7 +169,9 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
           <button
             type="button"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onClick={() =>
+              setCurrentPage((page) => Math.min(totalPages, page + 1))
+            }
           >
             →
           </button>

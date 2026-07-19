@@ -1,6 +1,5 @@
 import type { DiveInput } from '../../types/dive'
-
-export type FieldErrors = Partial<Record<'date' | 'site' | 'maxDepthM' | 'durationMin', string>>
+import type { FieldErrors } from './types'
 
 export function validateDiveForm(form: DiveInput, today: string): FieldErrors {
   const errors: FieldErrors = {}

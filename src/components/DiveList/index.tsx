@@ -3,9 +3,13 @@ import type { DiveListProps } from './types'
 import { DiveCard } from './DiveCard'
 import { DiveModal } from './DiveModal'
 
-export function DiveList({ dives, onDelete, onUpdate }: DiveListProps): ReactElement {
+export function DiveList({
+  dives,
+  onDelete,
+  onUpdate,
+}: DiveListProps): ReactElement {
   const [viewingId, setViewingId] = useState<string | null>(null)
-  const diveToView = dives.find((d) => d.id === viewingId)
+  const diveToView = dives.find((dive) => dive.id === viewingId)
 
   if (dives.length === 0) {
     return (
@@ -31,6 +35,7 @@ export function DiveList({ dives, onDelete, onUpdate }: DiveListProps): ReactEle
           ))}
         </ul>
       </section>
+
       {viewingId && diveToView && (
         <DiveModal
           dive={diveToView}

@@ -6,3 +6,7 @@ export interface DiveFormProps {
   onCloseEdit?: () => void
   embedded?: boolean
 }
+
+export type DiveFormField = 'date' | 'site' | 'maxDepthM' | 'durationMin'
+
+export type FieldErrors = Partial<Record<DiveFormField, string>>

@@ -22,7 +22,11 @@ function FormInput({
           placeholder={placeholder}
           style={error ? { borderColor: 'var(--danger)' } : undefined}
         />
-        {error && <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>{error}</span>}
+        {error && (
+          <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>
+            {error}
+          </span>
+        )}
       </label>
     )
   }
@@ -40,7 +44,11 @@ function FormInput({
         max={max}
         style={error ? { borderColor: 'var(--danger)' } : undefined}
       />
-      {error && <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>{error}</span>}
+      {error && (
+        <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>
+          {error}
+        </span>
+      )}
     </label>
   )
 }

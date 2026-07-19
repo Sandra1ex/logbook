@@ -4,7 +4,11 @@ import { Stars } from '../Shared/Stars'
 import { formatDateLong } from '../../utils/format'
 import ActionButton from '../Shared/ActionButton'
 
-export function DiveCard({ dive, onClick, onDelete }: DiveCardProps): ReactElement {
+export function DiveCard({
+  dive,
+  onClick,
+  onDelete,
+}: DiveCardProps): ReactElement {
   return (
     <li className="dive-card">
       <div className="dive-card-header" onClick={onClick}>
@@ -21,7 +25,11 @@ export function DiveCard({ dive, onClick, onDelete }: DiveCardProps): ReactEleme
       </div>
 
       <div className="dive-actions">
-        <ActionButton text="Удалить" onClick={() => onDelete(dive.id)} color="red" />
+        <ActionButton
+          text="Удалить"
+          onClick={() => onDelete(dive.id)}
+          color="red"
+        />
       </div>
     </li>
   )

@@ -16,6 +16,7 @@
 ## ✨ Особенности реализации
 
 - **Модульная архитектура** — компоненты сгруппированы по функциональности
+- **Типы в отдельных файлах** — каждый модуль хранит интерфейсы в `types.ts` своей директории
 - **Переиспользование** — `ActionButton`, `Stats`, `FormInput`, `Stars`
 - **Валидация формы** — обязательны все поля, кроме времени начала и заметок; нельзя выбирать будущие даты
 - **Анимации модалки** — плавное появление и исчезновение с учётом `prefers-reduced-motion`
@@ -50,37 +51,46 @@ npm run lint
 
 ```
 src/
-├── App.tsx                 # Корневой компонент, переключение режимов
-├── main.tsx                # Точка входа
-├── App.css                 # Стили приложения
-├── index.css               # Глобальные стили
+├── App.tsx                      # Корневой компонент, переключение режимов
+├── main.tsx                     # Точка входа
+├── App.css                      # Стили приложения
+├── index.css                    # Глобальные стили
 ├── components/
-│   ├── DiveForm/           # Форма добавления и редактирования
+│   ├── DiveForm/                # Форма добавления и редактирования
 │   │   ├── index.tsx
-│   │   ├── types.ts
+│   │   ├── types.ts             # DiveFormProps, FieldErrors
 │   │   ├── const.ts
 │   │   └── validation.ts
-│   ├── DiveList/           # Список карточек и модальное окно
+│   ├── DiveList/                # Список карточек и модальное окно
 │   │   ├── index.tsx
-│   │   ├── types.ts
+│   │   ├── types.ts             # DiveListProps, DiveCardProps, DiveModalProps
+│   │   ├── const.ts
 │   │   ├── DiveCard.tsx
 │   │   └── DiveModal.tsx
-│   ├── DiveTable/          # Таблица для режима просмотра
+│   ├── DiveTable/               # Таблица для режима просмотра
 │   │   ├── index.tsx
-│   │   └── types.ts
+│   │   └── types.ts             # DiveTableProps, SortKey, SortState
 │   └── Shared/
-│       ├── ActionButton.tsx
-│       ├── Stats.tsx
-│       ├── Stars.tsx
+│       ├── ActionButton/
+│       │   ├── index.tsx
+│       │   └── types.ts
+│       ├── Stats/
+│       │   ├── index.tsx
+│       │   └── types.ts
+│       ├── Stars/
+│       │   ├── index.tsx
+│       │   └── types.ts
 │       └── FormInput/
 │           ├── index.tsx
 │           └── types.ts
 ├── hooks/
-│   └── useDiveLog.ts       # CRUD и статистика, localStorage
+│   ├── useDiveLog.ts            # CRUD и статистика, localStorage
+│   └── types.ts                 # DiveLogStats
 ├── types/
-│   └── dive.ts             # Интерфейсы Dive и DiveInput
+│   ├── dive.ts                  # Dive, DiveInput
+│   └── app.ts                   # AppMode
 └── utils/
-    └── format.ts           # Форматирование дат и времени
+    └── format.ts                # Форматирование дат и времени
 ```
 
 ## 📝 Формат данных

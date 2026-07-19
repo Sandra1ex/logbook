@@ -1,8 +1,5 @@
 import { type ReactElement } from 'react'
-
-interface StarsProps {
-  rating: number
-}
+import type { StarsProps } from './types'
 
 export function Stars({ rating }: StarsProps): ReactElement {
   return (

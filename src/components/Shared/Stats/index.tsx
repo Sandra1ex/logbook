@@ -1,17 +1,19 @@
-interface StatsProps {
-  total: number
-  maxDepth: number
-  totalMinutes: number
+import { type ReactElement } from 'react'
+import type { StatsProps } from './types'
+
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+
+  if (hours === 0) return `${mins} мин`
+  return `${hours} ч ${mins} мин`
 }
 
-function formatDuration(minutes: number) {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  if (h === 0) return `${m} мин`
-  return `${h} ч ${m} мин`
-}
-
-export function Stats({ total, maxDepth, totalMinutes }: StatsProps) {
+export function Stats({
+  total,
+  maxDepth,
+  totalMinutes,
+}: StatsProps): ReactElement {
   return (
     <section className="stats">
       <div className="stat-card">

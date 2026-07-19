@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, type ReactElement } from 'react'
+import type { AppMode } from './types/app'
 import { DiveForm } from './components/DiveForm'
 import { DiveList } from './components/DiveList'
 import { DiveTable } from './components/DiveTable'
@@ -6,11 +7,9 @@ import { Stats } from './components/Shared/Stats'
 import { useDiveLog } from './hooks/useDiveLog'
 import './App.css'
 
-type Mode = 'edit' | 'view'
-
-function App() {
+function App(): ReactElement {
   const { dives, addDive, deleteDive, updateDive, stats } = useDiveLog()
-  const [mode, setMode] = useState<Mode>('edit')
+  const [mode, setMode] = useState<AppMode>('edit')
 
   return (
     <div className="app">
@@ -50,7 +49,11 @@ function App() {
         {mode === 'edit' ? (
           <>
             <DiveForm onSubmit={addDive} />
-            <DiveList dives={dives} onDelete={deleteDive} onUpdate={updateDive} />
+            <DiveList
+              dives={dives}
+              onDelete={deleteDive}
+              onUpdate={updateDive}
+            />
           </>
         ) : (
           <DiveTable dives={dives} />
