@@ -1,24 +1,13 @@
-import type { Dive } from '../../types/dive'
+import type { Dive, DiveInput } from '../../types/dive'
 
 export interface DiveListProps {
   dives: Dive[]
   onDelete: (id: string) => void
-}
-
-export interface StarsProps {
-  rating: number
+  onUpdate: (id: string, input: DiveInput) => void
 }
 
 export interface DiveCardProps {
-  dive: {
-    id: string
-    site: string
-    date: string
-    maxDepthM: number
-    durationMin: number
-    rating: number
-    notes?: string
-  }
+  dive: Dive
   onClick: () => void
   onDelete: (id: string) => void
 }
@@ -26,4 +15,5 @@ export interface DiveCardProps {
 export interface DiveModalProps {
   dive: Dive
   onClose: () => void
+  onUpdate: (id: string, input: DiveInput) => void
 }

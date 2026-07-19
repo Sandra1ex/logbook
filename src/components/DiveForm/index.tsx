@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import type { DiveInput } from '../../types/dive'
 import type { DiveFormProps } from './types'
 import { emptyForm } from './const'
+import { validateDiveForm, type FieldErrors } from './validation'
 import FormInput from '../Shared/FormInput'
 import ActionButton from '../Shared/ActionButton'
 
-export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
+export function DiveForm({ onSubmit, dive, onCloseEdit, embedded }: DiveFormProps) {
   const [form, setForm] = useState<DiveInput>(dive ? { ...dive } : emptyForm)
-  const [dateError, setDateError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   const today = new Date().toISOString().slice(0, 10)
 
@@ -17,30 +18,39 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
     } else {
       setForm(emptyForm)
     }
+    setErrors({})
   }, [dive])
 
-  function validateDate(date: string) {
-    if (date > today) {
-      setDateError('Нельзя записывать будущие даты')
-      return false
-    }
-    setDateError(null)
-    return true
+  function clearError(field: keyof FieldErrors) {
+    setErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.site.trim() || !validateDate(form.date)) return
+    const nextErrors = validateDiveForm(form, today)
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
+      return
+    }
+
     onSubmit(form)
-    setForm({ ...emptyForm, date: new Date().toISOString().slice(0, 10), time: '08:00' })
+    if (!dive) {
+      setForm({ ...emptyForm, date: today })
+      setErrors({})
+    }
   }
 
   function handleFormSubmit() {
-    handleSubmit({ preventDefault: () => {} } as any)
+    handleSubmit({ preventDefault: () => {} } as React.FormEvent)
   }
 
   return (
-    <form className="dive-form" onSubmit={handleSubmit}>
+    <form className={`dive-form${embedded ? ' embedded' : ''}`} onSubmit={handleSubmit}>
       <h2>{dive ? 'Редактирование' : 'Новое погружение'}</h2>
 
       <div className="form-row">
@@ -50,17 +60,15 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
           value={form.date}
           onChange={(e) => {
             setForm({ ...form, date: e.target.value })
-            setDateError(null)
+            clearError('date')
           }}
-          required
-          error={dateError || undefined}
+          error={errors.date}
         />
         <FormInput
           label="Время начала"
           type="time"
           value={form.time}
           onChange={(e) => setForm({ ...form, time: e.target.value })}
-          required
         />
       </div>
 
@@ -70,19 +78,38 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
           type="text"
           placeholder="напр. Бали, Туламбен"
           value={form.site}
-          onChange={(e) => setForm({ ...form, site: e.target.value })}
-          required
+          onChange={(e) => {
+            setForm({ ...form, site: e.target.value })
+            clearError('site')
+          }}
+          error={errors.site}
         />
+        <FormInput
+          label="Макс. глубина, м"
+          type="number"
+          min={0}
+          max={200}
+          value={form.maxDepthM || ''}
+          onChange={(e) => {
+            setForm({ ...form, maxDepthM: Number(e.target.value) })
+            clearError('maxDepthM')
+          }}
+          error={errors.maxDepthM}
+        />
+      </div>
+
+      <div className="form-row">
         <FormInput
           label="Время, мин"
           type="number"
           min={1}
           max={300}
           value={form.durationMin || ''}
-          onChange={(e) =>
+          onChange={(e) => {
             setForm({ ...form, durationMin: Number(e.target.value) })
-          }
-          required
+            clearError('durationMin')
+          }}
+          error={errors.durationMin}
         />
       </div>
 
@@ -111,14 +138,18 @@ export function DiveForm({ onSubmit, dive, onCloseEdit }: DiveFormProps) {
         onChange={(e) => setForm({ ...form, notes: e.target.value })}
       />
 
-      <div className="form-actions">
-        <ActionButton 
-          text={dive ? 'Сохранить изменения' : 'Записать погружение'} 
-          onClick={handleFormSubmit} 
-          color="accent" 
+      <div className={embedded ? 'modal-actions' : 'form-actions'}>
+        <ActionButton
+          text={dive ? 'Сохранить изменения' : 'Записать погружение'}
+          onClick={handleFormSubmit}
+          color="accent"
         />
         {dive && onCloseEdit && (
-          <ActionButton text="Отмена" onClick={onCloseEdit} color="outline" />
+          <ActionButton
+            text="Отмена"
+            onClick={onCloseEdit}
+            color={embedded ? 'red' : 'outline'}
+          />
         )}
       </div>
     </form>

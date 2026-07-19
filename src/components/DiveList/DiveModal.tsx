@@ -1,89 +1,122 @@
-import { useState, useEffect, type ReactElement } from 'react'
-import type { StarsProps, DiveModalProps } from './types'
+import { useState, useEffect, useRef, type ReactElement } from 'react'
+import type { DiveInput } from '../../types/dive'
+import type { DiveModalProps } from './types'
+import { Stars } from '../Shared/Stars'
+import { formatDateTimeLong } from '../../utils/format'
+import { DiveForm } from '../DiveForm'
 import ActionButton from '../Shared/ActionButton'
 
-function Stars({ rating }: StarsProps): ReactElement {
-  return (
-    <span className="stars" aria-label={`Оценка ${rating} из 5`}>
-      {'★'.repeat(rating)}
-      {'☆'.repeat(5 - rating)}
-    </span>
-  )
-}
+const CLOSE_DURATION_MS = 550
 
-function formatDate(iso: string): string {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
+export function DiveModal({ dive, onClose, onUpdate }: DiveModalProps): ReactElement {
+  const [isEditing, setIsEditing] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
+  const closeTimeoutRef = useRef<number | null>(null)
+  const isClosingRef = useRef(false)
 
-function formatDateTime(dateIso: string, time: string): string {
-  return `${formatDate(dateIso)} в ${time}`
-}
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current !== null) {
+        window.clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
 
-export function DiveModal({ dive, onClose }: DiveModalProps): ReactElement {
-  const [isModalOpen, setIsModalOpen] = useState(true)
+  function requestClose() {
+    if (isClosingRef.current) return
+    isClosingRef.current = true
+    setIsClosing(true)
+    closeTimeoutRef.current = window.setTimeout(onClose, CLOSE_DURATION_MS)
+  }
 
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
-      if (e.key === 'Escape' && isModalOpen) {
-        setIsModalOpen(false)
-        onClose()
+      if (e.key !== 'Escape' || isClosingRef.current) return
+      if (isEditing) {
+        setIsEditing(false)
+      } else {
+        requestClose()
       }
     }
-    if (isModalOpen) {
-      document.addEventListener('keydown', handleEsc)
-      document.body.style.overflow = 'hidden'
-    }
+
+    document.addEventListener('keydown', handleEsc)
+    document.body.style.overflow = 'hidden'
+
     return () => {
       document.removeEventListener('keydown', handleEsc)
       document.body.style.overflow = ''
     }
-  }, [isModalOpen, onClose])
+  }, [isEditing, onClose])
 
-  function closeModal() {
-    setIsModalOpen(false)
-    onClose()
+  function handleOverlayClick() {
+    if (isEditing || isClosing) return
+    requestClose()
+  }
+
+  function handleUpdate(input: DiveInput) {
+    onUpdate(dive.id, input)
+    setIsEditing(false)
   }
 
   return (
-    <div className="modal-overlay" onClick={closeModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`modal-overlay${isClosing ? ' modal-overlay-closing' : ''}`}
+      onClick={handleOverlayClick}
+    >
+      <div
+        className={`modal-content${isEditing ? ' modal-content-editing' : ''}${isClosing ? ' modal-content-closing' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h3>{dive.site}</h3>
-          <button type="button" className="modal-close-btn" onClick={closeModal}>
+          <h3>{isEditing ? 'Редактирование' : dive.site}</h3>
+          <button type="button" className="modal-close-btn" onClick={requestClose}>
             ×
           </button>
         </div>
-        <time dateTime={dive.date + 'T' + dive.time}>{formatDateTime(dive.date, dive.time)}</time>
-        <div className="modal-grid">
-          <div>
-            <span className="label">Глубина</span>
-            <span className="value">{dive.maxDepthM} м</span>
-          </div>
-          <div>
-            <span className="label">Время</span>
-            <span className="value">{dive.durationMin} мин</span>
-          </div>
-          <div>
-            <span className="label">Оценка</span>
-            <span className="value">
-              <Stars rating={dive.rating} />
-            </span>
-          </div>
-        </div>
-        {dive.notes && (
-          <div className="modal-section">
-            <span className="label">Заметки</span>
-            <p className="notes">{dive.notes}</p>
-          </div>
+
+        {isEditing ? (
+          <DiveForm
+            dive={dive}
+            embedded
+            onSubmit={handleUpdate}
+            onCloseEdit={() => setIsEditing(false)}
+          />
+        ) : (
+          <>
+            <time dateTime={dive.time ? dive.date + 'T' + dive.time : dive.date}>
+              {formatDateTimeLong(dive.date, dive.time)}
+            </time>
+            <div className="modal-grid">
+              <div>
+                <span className="label">Глубина</span>
+                <span className="value">{dive.maxDepthM} м</span>
+              </div>
+              <div>
+                <span className="label">Время</span>
+                <span className="value">{dive.durationMin} мин</span>
+              </div>
+              <div>
+                <span className="label">Оценка</span>
+                <span className="value">
+                  <Stars rating={dive.rating} />
+                </span>
+              </div>
+            </div>
+            {dive.notes && (
+              <div className="modal-section">
+                <span className="label">Заметки</span>
+                <p className="notes">{dive.notes}</p>
+              </div>
+            )}
+            <div className="modal-actions">
+              <ActionButton
+                text="Редактировать"
+                onClick={() => setIsEditing(true)}
+                color="blue"
+              />
+            </div>
+          </>
         )}
-        <div className="modal-actions">
-          <ActionButton text="Добавить данные" onClick={() => {}} />
-          <ActionButton text="Редактировать" onClick={() => {}} color="blue" />
-        </div>
       </div>
     </div>
   )

@@ -1,9 +1,9 @@
 import { useState, type ReactElement } from 'react'
-import type { Dive } from '../../types/dive'
+import type { DiveListProps } from './types'
 import { DiveCard } from './DiveCard'
 import { DiveModal } from './DiveModal'
 
-export function DiveList({ dives, onDelete }: { dives: Dive[], onDelete: (id: string) => void }): ReactElement {
+export function DiveList({ dives, onDelete, onUpdate }: DiveListProps): ReactElement {
   const [viewingId, setViewingId] = useState<string | null>(null)
   const diveToView = dives.find((d) => d.id === viewingId)
 
@@ -17,21 +17,27 @@ export function DiveList({ dives, onDelete }: { dives: Dive[], onDelete: (id: st
   }
 
   return (
-    <section className="dive-list">
-      <h2>Журнал ({dives.length})</h2>
-      <ul>
-        {dives.map((dive) => (
-          <DiveCard
-            key={dive.id}
-            dive={dive}
-            onClick={() => setViewingId(dive.id)}
-            onDelete={onDelete}
-          />
-        ))}
-      </ul>
+    <>
+      <section className="dive-list">
+        <h2>Журнал ({dives.length})</h2>
+        <ul>
+          {dives.map((dive) => (
+            <DiveCard
+              key={dive.id}
+              dive={dive}
+              onClick={() => setViewingId(dive.id)}
+              onDelete={onDelete}
+            />
+          ))}
+        </ul>
+      </section>
       {viewingId && diveToView && (
-        <DiveModal dive={diveToView} onClose={() => setViewingId(null)} />
+        <DiveModal
+          dive={diveToView}
+          onClose={() => setViewingId(null)}
+          onUpdate={onUpdate}
+        />
       )}
-    </section>
+    </>
   )
 }

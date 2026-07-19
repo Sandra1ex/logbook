@@ -2,29 +2,8 @@ import { useMemo, useState, type ReactElement } from 'react'
 import type { Dive } from '../../types/dive'
 import type { DiveTableProps, SortKey, SortState } from './types'
 import { PAGE_SIZE } from './types'
-
-function formatDate(iso: string) {
-  const date = new Date(iso + 'T12:00:00')
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function formatDateTime(dateIso: string, time: string) {
-  const date = new Date(dateIso + 'T' + time)
-  const datePart = date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-  const timePart = date.toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-  return `${datePart} ${timePart}`
-}
+import { Stars } from '../Shared/Stars'
+import { formatDateShort, formatDateTime } from '../../utils/format'
 
 function sortDives(dives: Dive[], sort: SortState | null) {
   if (!sort) return dives
@@ -125,20 +104,16 @@ export function DiveTable({ dives }: DiveTableProps): ReactElement {
                 <td>{dive.maxDepthM} м</td>
                 <td>{dive.durationMin} мин</td>
                 <td>
-                  <span
-                    className="stars"
-                    aria-label={`Оценка ${dive.rating} из 5`}
-                  >
-                    {'★'.repeat(dive.rating)}
-                    {'☆'.repeat(5 - dive.rating)}
-                  </span>
+                  <Stars rating={dive.rating} />
                 </td>
                 <td className="notes-cell">{dive.notes || '—'}</td>
                 <td>
-                  <time dateTime={dive.date + 'T' + dive.time}>{formatDateTime(dive.date, dive.time)}</time>
+                  <time dateTime={dive.time ? dive.date + 'T' + dive.time : dive.date}>
+                    {formatDateTime(dive.date, dive.time)}
+                  </time>
                 </td>
                 <td>
-                  <time dateTime={dive.date}>{formatDate(dive.date)}</time>
+                  <time dateTime={dive.date}>{formatDateShort(dive.date)}</time>
                 </td>
               </tr>
             ))}

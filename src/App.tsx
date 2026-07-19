@@ -9,7 +9,7 @@ import './App.css'
 type Mode = 'edit' | 'view'
 
 function App() {
-  const { dives, addDive, deleteDive, stats } = useDiveLog()
+  const { dives, addDive, deleteDive, updateDive, stats } = useDiveLog()
   const [mode, setMode] = useState<Mode>('edit')
 
   return (
@@ -50,7 +50,7 @@ function App() {
         {mode === 'edit' ? (
           <>
             <DiveForm onSubmit={addDive} />
-            <DiveList dives={dives} onDelete={deleteDive} />
+            <DiveList dives={dives} onDelete={deleteDive} onUpdate={updateDive} />
           </>
         ) : (
           <DiveTable dives={dives} />
